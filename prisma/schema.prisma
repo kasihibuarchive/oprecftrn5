@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Registration {
+  id                     String   @id @default(cuid())
+  // Data Diri
+  fullName               String
+  faculty                String
+  phone                  String
+  instagram              String
+  bio                    String
+  // Pilihan Divisi
+  firstChoiceDivision    String
+  firstChoiceStatement   String
+  secondChoiceDivision   String
+  secondChoiceStatement  String
+  // Tambahan
+  skills                 String?
+  experience             String?
+  portfolioLink          String?
+  motivation             String?
+  availability           String?
+  // Meta
+  agree                  Boolean  @default(false)
+  createdAt              DateTime @default(now())
+
+  @@index([firstChoiceDivision])
+  @@index([secondChoiceDivision])
+  @@index([createdAt])
+}
