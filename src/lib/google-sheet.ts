@@ -16,14 +16,16 @@
  *     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
  *     if (sheet.getLastRow() === 0) {
  *       sheet.appendRow([
- *         "Timestamp", "Nama Lengkap", "Fakultas/Jurusan", "No. WhatsApp",
- *         "Instagram", "Biodata", "1st Choice Divisi", "Statement 1st Choice",
+ *         "Timestamp", "Nama Lengkap", "NIM", "Fakultas", "Program Studi",
+ *         "Angkatan", "No. WhatsApp", "Instagram", "Biodata",
+ *         "1st Choice Divisi", "Statement 1st Choice",
  *         "2nd Choice Divisi", "Statement 2nd Choice", "Keahlian",
  *         "Pengalaman", "Portfolio Link", "Motivasi", "Ketersediaan Waktu"
  *       ]);
  *     }
  *     sheet.appendRow([
- *       p.timestamp, p.fullName, p.faculty, p.phone, p.instagram, p.bio,
+ *       p.timestamp, p.fullName, p.nim, p.faculty, p.prodi, p.angkatan,
+ *       p.phone, p.instagram, p.bio,
  *       p.firstChoiceDivision, p.firstChoiceStatement,
  *       p.secondChoiceDivision, p.secondChoiceStatement,
  *       p.skills, p.experience, p.portfolioLink, p.motivation, p.availability

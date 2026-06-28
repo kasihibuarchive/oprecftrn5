@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { registrationSchema } from "@/lib/schema";
 import { forwardToGoogleSheet, GOOGLE_SHEET_WEBHOOK_URL } from "@/lib/google-sheet";
-import { DIVISIONS } from "@/lib/data";
+import { DIVISIONS, facultyName } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,10 @@ export async function POST(req: NextRequest) {
     const reg = await db.registration.create({
       data: {
         fullName: data.fullName.trim(),
-        faculty: data.faculty.trim(),
+        nim: data.nim.trim(),
+        faculty: data.faculty,
+        prodi: data.prodi,
+        angkatan: data.angkatan,
         phone: data.phone.trim(),
         instagram: data.instagram.trim().replace(/^@/, ""),
         bio: data.bio.trim(),
@@ -59,7 +62,10 @@ export async function POST(req: NextRequest) {
     const sheetPayload = {
       timestamp: reg.createdAt.toISOString(),
       fullName: reg.fullName,
-      faculty: reg.faculty,
+      nim: reg.nim,
+      faculty: facultyName(reg.faculty),
+      prodi: reg.prodi,
+      angkatan: reg.angkatan,
       phone: reg.phone,
       instagram: reg.instagram,
       bio: reg.bio,

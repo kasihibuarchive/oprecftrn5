@@ -14,7 +14,10 @@ model Registration {
   id                     String   @id @default(cuid())
   // Data Diri
   fullName               String
+  nim                    String
   faculty                String
+  prodi                  String
+  angkatan               String
   phone                  String
   instagram              String
   bio                    String
@@ -35,5 +38,6 @@ model Registration {
 
   @@index([firstChoiceDivision])
   @@index([secondChoiceDivision])
+  @@index([faculty])
   @@index([createdAt])
 }

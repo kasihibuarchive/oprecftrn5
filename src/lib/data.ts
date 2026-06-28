@@ -183,6 +183,72 @@ export const DIVISIONS: Division[] = [
   },
 ];
 
+/* ===== Struktur Fakultas ISI Yogyakarta ===== */
+export type Faculty = {
+  id: string;
+  name: string;
+  short: string;
+  prodi: string[];
+};
+
+export const FACULTIES: Faculty[] = [
+  {
+    id: "fsmr",
+    name: "Fakultas Seni Media Rekam",
+    short: "FSMR",
+    prodi: [
+      "Film & Televisi",
+      "Fotografi",
+      "Animasi",
+      "Produksi Film & Televisi",
+    ],
+  },
+  {
+    id: "fsp",
+    name: "Fakultas Seni Pertunjukan",
+    short: "FSP",
+    prodi: [
+      "Teater",
+      "Teater Musikal",
+      "Etnomusikologi",
+      "Tari",
+      "Musik",
+      "Penciptaan Musik",
+      "Penyajian Musik",
+      "Pendidikan Musik",
+      "Pendidikan Seni Pertunjukan",
+      "Pedalangan",
+      "Karawitan",
+    ],
+  },
+  {
+    id: "fsrd",
+    name: "Fakultas Seni Rupa dan Desain",
+    short: "FSRD",
+    prodi: [
+      "Desain Komunikasi Visual",
+      "Seni Murni",
+      "Desain Interior",
+      "Kriya",
+      "Desain Produk",
+      "Tata Kelola Seni",
+      "Konservasi Seni",
+      "Desain Mode Kriya Batik",
+      "Desain Media",
+    ],
+  },
+];
+
+export const ANGKATAN: number[] = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
+
+export function facultyName(id: string): string {
+  return FACULTIES.find((f) => f.id === id)?.name ?? id;
+}
+
+export function getProdiList(facultyId: string): string[] {
+  return FACULTIES.find((f) => f.id === facultyId)?.prodi ?? [];
+}
+
 export const BENEFITS = [
   "E-Certificate",
   "Networking dengan seniman & peserta dari seluruh Indonesia",

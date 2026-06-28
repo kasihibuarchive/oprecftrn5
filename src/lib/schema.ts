@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { FACULTIES, ANGKATAN } from "@/lib/data";
+
+const validFacultyIds = FACULTIES.map((f) => f.id);
+const validAngkatan = ANGKATAN.map(String);
 
 export const registrationSchema = z
   .object({
@@ -7,10 +11,26 @@ export const registrationSchema = z
       .string()
       .min(3, { message: "Nama lengkap minimal 3 karakter" })
       .max(80, { message: "Nama terlalu panjang" }),
+    nim: z
+      .string()
+      .min(6, { message: "NIM minimal 6 digit" })
+      .max(20, { message: "NIM terlalu panjang" })
+      .regex(/^[0-9]+$/, { message: "NIM hanya boleh angka" }),
     faculty: z
       .string()
-      .min(2, { message: "Fakultas / jurusan wajib diisi" })
-      .max(80, { message: "Terlalu panjang" }),
+      .min(1, { message: "Pilih fakultas" })
+      .refine((v) => validFacultyIds.includes(v), {
+        message: "Fakultas tidak valid",
+      }),
+    prodi: z
+      .string()
+      .min(1, { message: "Pilih program studi" }),
+    angkatan: z
+      .string()
+      .min(1, { message: "Pilih angkatan" })
+      .refine((v) => validAngkatan.includes(v), {
+        message: "Angkatan tidak valid",
+      }),
     phone: z
       .string()
       .min(8, { message: "Nomor WhatsApp minimal 8 digit" })
@@ -70,6 +90,16 @@ export const registrationSchema = z
       errorMap: () => ({ message: "Kamu harus menyetujui pernyataan di atas" }),
     }),
   })
+  .refine(
+    (data) => {
+      const f = FACULTIES.find((x) => x.id === data.faculty);
+      return f ? f.prodi.includes(data.prodi) : false;
+    },
+    {
+      message: "Program studi tidak sesuai dengan fakultas yang dipilih",
+      path: ["prodi"],
+    }
+  )
   .refine((data) => data.firstChoiceDivision !== data.secondChoiceDivision, {
     message: "Divisi utama & alternatif tidak boleh sama",
     path: ["secondChoiceDivision"],

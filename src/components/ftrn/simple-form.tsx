@@ -13,7 +13,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { registrationSchema, type RegistrationInput } from "@/lib/schema";
-import { DIVISIONS, FTRN_INFO } from "@/lib/data";
+import {
+  DIVISIONS,
+  FTRN_INFO,
+  FACULTIES,
+  ANGKATAN,
+  getProdiList,
+} from "@/lib/data";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -40,12 +46,16 @@ export function SimpleForm() {
     control,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<RegistrationInput>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
       fullName: "",
+      nim: "",
       faculty: "",
+      prodi: "",
+      angkatan: "",
       phone: "",
       instagram: "",
       bio: "",
@@ -62,6 +72,9 @@ export function SimpleForm() {
     },
     mode: "onTouched",
   });
+
+  const selectedFacultyId = watch("faculty");
+  const prodiList = getProdiList(selectedFacultyId);
 
   const onSubmit = async (data: RegistrationInput) => {
     setSubmitting(true);
@@ -112,15 +125,117 @@ export function SimpleForm() {
           />
         </FormField>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label="Nomor Induk Mahasiswa (NIM)"
+            required
+            error={errors.nim?.message}
+          >
+            <Input
+              placeholder="cth. 2019011001"
+              inputMode="numeric"
+              className="h-12 rounded-xl"
+              {...register("nim")}
+            />
+          </FormField>
+          <FormField
+            label="Angkatan"
+            required
+            error={errors.angkatan?.message}
+          >
+            <Controller
+              control={control}
+              name="angkatan"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Pilih angkatan…" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72 rounded-xl">
+                    {ANGKATAN.map((a) => (
+                      <SelectItem key={a} value={String(a)} className="rounded-lg">
+                        {a}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </FormField>
+        </div>
+
         <FormField
-          label="Fakultas / Jurusan"
+          label="Fakultas"
           required
           error={errors.faculty?.message}
         >
-          <Input
-            placeholder="cth. FSR — Jurusan Teater"
-            className="h-12 rounded-xl"
-            {...register("faculty")}
+          <Controller
+            control={control}
+            name="faculty"
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={(v) => {
+                  field.onChange(v);
+                  // reset prodi when faculty changes
+                  setValue("prodi", "", { shouldValidate: false });
+                }}
+              >
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="Pilih fakultas…" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72 rounded-xl">
+                  {FACULTIES.map((f) => (
+                    <SelectItem key={f.id} value={f.id} className="rounded-lg">
+                      {f.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </FormField>
+
+        <FormField
+          label="Program Studi"
+          required
+          error={errors.prodi?.message}
+          hint={
+            selectedFacultyId
+              ? `${prodiList.length} prodi tersedia`
+              : "Pilih fakultas dulu"
+          }
+        >
+          <Controller
+            control={control}
+            name="prodi"
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!selectedFacultyId}
+              >
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue
+                    placeholder={
+                      selectedFacultyId
+                        ? "Pilih program studi…"
+                        : "— pilih fakultas dulu —"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-72 rounded-xl">
+                  {prodiList.map((p) => (
+                    <SelectItem key={p} value={p} className="rounded-lg">
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </FormField>
 

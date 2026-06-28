@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { DIVISIONS } from "@/lib/data";
+import { DIVISIONS, facultyName } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,10 @@ export async function GET() {
     const headers = [
       "Timestamp",
       "Nama Lengkap",
-      "Fakultas/Jurusan",
+      "NIM",
+      "Fakultas",
+      "Program Studi",
+      "Angkatan",
       "No. WhatsApp",
       "Instagram",
       "Biodata",
@@ -48,7 +51,10 @@ export async function GET() {
         [
           r.createdAt.toISOString(),
           r.fullName,
-          r.faculty,
+          r.nim,
+          facultyName(r.faculty),
+          r.prodi,
+          r.angkatan,
           r.phone,
           r.instagram,
           r.bio,
