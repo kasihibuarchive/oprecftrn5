@@ -83,17 +83,44 @@ export function SimpleForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Gagal mengirim formulir");
+
+      // Handle non-OK responses — server might return HTML error page
+      // (e.g. when dev server crashed) instead of JSON.
+      const text = await res.text();
+      let json: { error?: string; issues?: unknown } = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        // response is not JSON (likely HTML error page)
+        throw new Error(
+          "Server sedang tidak stabil. Coba refresh halaman lalu kirim ulang."
+        );
+      }
+
+      if (!res.ok) {
+        // Build a readable message from zod issues if present
+        let msg = json.error || "Gagal mengirim formulir";
+        if (json.issues && typeof json.issues === "object") {
+          const firstField = Object.values(json.issues)[0];
+          if (Array.isArray(firstField) && firstField[0]) {
+            msg = firstField[0] as string;
+          }
+        }
+        throw new Error(msg);
+      }
+
       setSuccess(true);
       reset();
       toast.success("Pendaftaran terkirim!", {
         description: "Tim FTRN #5 akan menghubungi kamu via WhatsApp.",
       });
     } catch (e) {
+      const msg =
+        e instanceof Error
+          ? e.message
+          : "Terjadi kesalahan tak terduga.";
       toast.error("Gagal mendaftar", {
-        description:
-          e instanceof Error ? e.message : "Terjadi kesalahan tak terduga.",
+        description: msg,
       });
     } finally {
       setSubmitting(false);
