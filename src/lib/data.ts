@@ -276,12 +276,24 @@ export const FTRN_INFO = {
   },
 };
 
-// Dokumentasi FTRN #4 (placeholder — nanti diganti foto asli)
-export const FTRN4_DOCS = [
-  { id: 1, title: "Panggung Utama", category: "Pertunjukan" },
-  { id: 2, title: "Workshop Teater", category: "Education" },
-  { id: 3, title: "Parade Rakyat", category: "Carnival" },
-  { id: 4, title: "Behind The Scene", category: "Candid" },
-  { id: 5, title: "Penutupan", category: "Closing" },
-  { id: 6, title: "Suasana Penonton", category: "Audience" },
-];
+// Linimasa Open Recruitment FTRN #5
+export const RECRUITMENT_TIMELINE = [
+  {
+    id: "open",
+    date: "28 Jun",
+    label: "Open Recruitment",
+    desc: "Pendaftaran dibuka",
+  },
+  {
+    id: "selection",
+    date: "Proses",
+    label: "Seleksi",
+    desc: "Tahap seleksi berkas & wawancara",
+  },
+  {
+    id: "close",
+    date: "10 Jul",
+    label: "Close Recruitment",
+    desc: "Pengumuman & penutupan",
+  },
+] as const;

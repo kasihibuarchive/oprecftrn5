@@ -1,5 +1,5 @@
 import { BenefitsButton } from "@/components/ftrn/benefits-dialog";
-import { DocsButton } from "@/components/ftrn/docs-dialog";
+import { Timeline } from "@/components/ftrn/timeline";
 import { SimpleForm } from "@/components/ftrn/simple-form";
 import { FTRN_INFO } from "@/lib/data";
 import {
@@ -7,7 +7,6 @@ import {
   Instagram,
   CalendarDays,
   Phone,
-  Images,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -104,18 +103,17 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Quick links: benefit & docs */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-primary/10 bg-secondary/30 px-6 py-3 sm:px-10">
+          {/* Linimasa recruitment */}
+          <Timeline />
+
+          {/* Quick link: benefit */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-primary/10 bg-secondary/30 px-6 py-2.5 sm:px-10">
             <span className="mr-1 text-xs font-medium text-muted-foreground">
               Lihat:
             </span>
             <BenefitsButton variant="outline" className="h-8 rounded-full px-3.5 text-xs">
-              Benefit
+              Benefit Panitia
             </BenefitsButton>
-            <DocsButton variant="outline" className="h-8 rounded-full px-3.5 text-xs">
-              <Images className="mr-1 h-3.5 w-3.5" />
-              Dokumentasi FTRN #4
-            </DocsButton>
           </div>
 
           {/* Form body */}

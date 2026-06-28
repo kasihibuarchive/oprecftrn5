@@ -33,8 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BenefitsButton } from "./benefits-dialog";
-import { DocsButton } from "./docs-dialog";
-import { Leaf } from "./nature-decor";
 
 export function SimpleForm() {
   const [submitting, setSubmitting] = useState(false);
