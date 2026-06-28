@@ -5,17 +5,28 @@
  * Web App URL that receives POST requests and appends a row to your
  * spreadsheet. Leave empty to only save locally (fallback).
  *
- * Example Apps Script (doGet/doPost) — deploy as Web App, "Anyone" access:
+ * NOTE: Google Apps Script edge blocks POST bodies that look like raw JSON
+ * (bodies starting with `{`). We send data as `application/x-www-form-urlencoded`
+ * fields instead, which is reliably delivered to doPost(e.parameter).
+ *
+ * Apps Script (doPost) — deploy as Web App, "Anyone" access:
+ *
  *   function doPost(e) {
- *     const data = JSON.parse(e.postData.contents);
+ *     const p = e.parameter;
  *     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+ *     if (sheet.getLastRow() === 0) {
+ *       sheet.appendRow([
+ *         "Timestamp", "Nama Lengkap", "Fakultas/Jurusan", "No. WhatsApp",
+ *         "Instagram", "Biodata", "1st Choice Divisi", "Statement 1st Choice",
+ *         "2nd Choice Divisi", "Statement 2nd Choice", "Keahlian",
+ *         "Pengalaman", "Portfolio Link", "Motivasi", "Ketersediaan Waktu"
+ *       ]);
+ *     }
  *     sheet.appendRow([
- *       new Date(),
- *       data.fullName, data.faculty, data.phone, data.instagram, data.bio,
- *       data.firstChoiceDivision, data.firstChoiceStatement,
- *       data.secondChoiceDivision, data.secondChoiceStatement,
- *       data.skills, data.experience, data.portfolioLink,
- *       data.motivation, data.availability
+ *       p.timestamp, p.fullName, p.faculty, p.phone, p.instagram, p.bio,
+ *       p.firstChoiceDivision, p.firstChoiceStatement,
+ *       p.secondChoiceDivision, p.secondChoiceStatement,
+ *       p.skills, p.experience, p.portfolioLink, p.motivation, p.availability
  *     ]);
  *     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
  *       .setMimeType(ContentService.MimeType.JSON);
@@ -25,16 +36,21 @@
 export const GOOGLE_SHEET_WEBHOOK_URL =
   process.env.GOOGLE_SHEET_WEBHOOK_URL?.trim() || "";
 
-export async function forwardToGoogleSheet(payload: Record<string, unknown>) {
+export async function forwardToGoogleSheet(payload: Record<string, string>) {
   if (!GOOGLE_SHEET_WEBHOOK_URL) {
     return { forwarded: false, reason: "not_configured" as const };
   }
   try {
+    // Send as application/x-www-form-urlencoded — Google Apps Script edge
+    // reliably delivers this to doPost(e.parameter). Raw JSON bodies are
+    // blocked at the edge (HTTP 405).
+    const body = new URLSearchParams(payload).toString();
     const res = await fetch(GOOGLE_SHEET_WEBHOOK_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      // Apps Script can be slow on cold start
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
       signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) {
