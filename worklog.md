@@ -318,3 +318,36 @@ Verification:
 Stage Summary:
 - All 3 user-reported issues fixed and verified
 - Code pushed to https://github.com/kasihibuarchive/oprecftrn5
+
+---
+Task ID: FIX-2
+Agent: Main (orchestrator)
+Task: Fix "Gagal mendaftar kesalahan server" error
+
+Work Log:
+- User reported: submit shows "Gagal mendaftar / Terjadi kesalahan server"
+- Screenshot confirmed: red toast with generic error message
+- Checked dev.log: only 422 (invalid) and 201 (success) logged, no 500
+- Diagnosis: dev server (Turbopack) crashes mid-request frequently in this
+  sandbox. When it crashes during POST, Next.js returns HTML error page
+  (not JSON). Frontend did `res.json()` which threw → catch block showed
+  generic "Terjadi kesalahan server"
+- Root cause is NOT the code — it's the unstable Turbopack dev server
+- Fix in simple-form.tsx onSubmit:
+  - Read response as text first, then try JSON.parse
+  - If parse fails (HTML error page): show "Server sedang tidak stabil.
+    Coba refresh halaman lalu kirim ulang."
+  - If zod issues present: extract first issue message (readable)
+- Verified via curl: POST valid → 201 + googleSheet forwarded:true ✅
+- Committed & pushed: f1092ac
+
+Permanent solution for user:
+- Dev server (Turbopack) in this sandbox is unstable — crashes on concurrent
+  requests (agent-browser headless chrome triggers multiple at once)
+- Production deploy (Vercel) uses stable compiled build, no Turbopack
+- User should deploy to Vercel for stable form submission
+
+Stage Summary:
+- Error handling improved (clearer messages for server-down scenarios)
+- Code pushed to GitHub
+- Recommend Vercel deploy for production stability
