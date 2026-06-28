@@ -144,3 +144,29 @@ Stage Summary:
 - .env configured with user's URL
 - Local fallback active: all registrations saved to SQLite regardless of Sheet status
 - Awaiting personal-Gmail redeployment URL to enable live Google Sheet sync
+
+---
+Task ID: REVAMP-4
+Agent: Main (orchestrator)
+Task: Test 3rd Google Sheet URL + add CSV backup export
+
+Work Log:
+- User sent 3rd URL (still students.isi.ac.id Workspace domain)
+- Tested GET (no follow): returns 302 redirect to google.com/a/students.isi.ac.id/ServiceLogin → requires ISI login
+- Tested POST (json, text/plain, form-urlencoded): all return 401
+- Tested stripped URL (removed /a/domain/): still 401
+- Confirmed: Workspace admin policy blocks ALL anonymous access (GET+POST) for /a/students.isi.ac.id/ path
+- Updated .env to latest URL (ready once access fixed)
+- Re-added /api/registrations/export CSV route as reliable backup
+- Added "Panitia — Export Data Pendaftar (CSV)" link in footer
+- Lint clean, CSV export tested: returns proper CSV with 4 saved registrations
+- Local DB has 4 registrations saved as fallback
+
+Diagnosis confirmed:
+- Path /a/macros/students.isi.ac.id/ = Workspace-bound, forces org auth regardless of deploy setting
+- Only solution: redeploy Apps Script from personal @gmail.com account → URL becomes /macros/s/.../exec (no /a/domain/)
+
+Stage Summary:
+- Web form 100% functional, data saved locally (4 entries)
+- CSV export available at /api/registrations/export (link in footer) — can import to Google Sheets manually
+- Google Sheet auto-sync blocked by ISI Workspace policy — needs personal Gmail redeploy

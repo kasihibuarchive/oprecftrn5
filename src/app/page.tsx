@@ -131,6 +131,12 @@ export default function Home() {
             © {new Date().getFullYear()} {FTRN_INFO.name} ·{" "}
             {FTRN_INFO.organizer}
           </p>
+          <a
+            href="/api/registrations/export"
+            className="mt-1.5 inline-block text-[11px] font-medium text-primary/70 underline-offset-2 transition-colors hover:text-primary hover:underline"
+          >
+            Panitia — Export Data Pendaftar (CSV)
+          </a>
         </div>
       </footer>
     </div>
