@@ -25,6 +25,10 @@ export const metadata: Metadata = {
     "Teater",
   ],
   authors: [{ name: "HMJ Teater ISI Yogyakarta" }],
+  icons: {
+    icon: "/ftrn-logo.png",
+    apple: "/ftrn-logo.png",
+  },
   openGraph: {
     title: "Open Recruitment Panitia FTRN #5",
     description:
