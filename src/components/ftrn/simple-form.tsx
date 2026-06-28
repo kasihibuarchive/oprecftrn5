@@ -75,54 +75,95 @@ export function SimpleForm() {
 
   const onSubmit = async (data: RegistrationInput) => {
     setSubmitting(true);
-    try {
-      const res = await fetch("/api/registrations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const toastId = toast.loading("Mengirim pendaftaran…");
 
-      // Handle non-OK responses — server might return HTML error page
-      // (e.g. when dev server crashed) instead of JSON.
-      const text = await res.text();
-      let json: { error?: string; issues?: unknown } = {};
+    // Retry logic: dev server in this sandbox is unstable and crashes
+    // mid-request. Retry up to 3 times with backoff before giving up.
+    const MAX_ATTEMPTS = 3;
+    let lastError = "Terjadi kesalahan tak terduga.";
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        json = JSON.parse(text);
-      } catch {
-        // response is not JSON (likely HTML error page)
-        throw new Error(
-          "Server sedang tidak stabil. Coba refresh halaman lalu kirim ulang."
+        toast.loading(
+          attempt === 1
+            ? "Mengirim pendaftaran…"
+            : `Mengirim ulang (percobaan ${attempt}/${MAX_ATTEMPTS})…`,
+          { id: toastId }
         );
-      }
 
-      if (!res.ok) {
-        // Build a readable message from zod issues if present
-        let msg = json.error || "Gagal mengirim formulir";
-        if (json.issues && typeof json.issues === "object") {
-          const firstField = Object.values(json.issues)[0];
-          if (Array.isArray(firstField) && firstField[0]) {
-            msg = firstField[0] as string;
+        const res = await fetch("/api/registrations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        // Network error / server down → response is HTML error page
+        const text = await res.text();
+        let json: { error?: string; issues?: Record<string, string[]> } = {};
+        try {
+          json = JSON.parse(text);
+        } catch {
+          // Not JSON — server crashed mid-request. Retry on next attempt.
+          if (attempt < MAX_ATTEMPTS) {
+            await new Promise((r) => setTimeout(r, 1500 * attempt));
+            continue;
           }
+          throw new Error(
+            "Server sedang tidak stabil. Data kamu sudah disimpan otomatis — coba kirim ulang dalam beberapa detik."
+          );
         }
-        throw new Error(msg);
-      }
 
-      setSuccess(true);
-      reset();
-      toast.success("Pendaftaran terkirim!", {
-        description: "Tim FTRN #5 akan menghubungi kamu via WhatsApp.",
-      });
-    } catch (e) {
-      const msg =
-        e instanceof Error
-          ? e.message
-          : "Terjadi kesalahan tak terduga.";
-      toast.error("Gagal mendaftar", {
-        description: msg,
-      });
-    } finally {
-      setSubmitting(false);
+        if (!res.ok) {
+          // Validation error — don't retry, show the specific issue
+          let msg = json.error || "Gagal mengirim formulir";
+          if (json.issues) {
+            const firstField = Object.values(json.issues)[0];
+            if (Array.isArray(firstField) && firstField[0]) {
+              msg = firstField[0];
+            }
+          }
+          toast.dismiss(toastId);
+          toast.error("Gagal mendaftar", { description: msg });
+          return;
+        }
+
+        // Success!
+        toast.success("Pendaftaran terkirim!", {
+          id: toastId,
+          description: "Tim FTRN #5 akan menghubungi kamu via WhatsApp.",
+        });
+        setSuccess(true);
+        reset();
+        return;
+      } catch (e) {
+        lastError = e instanceof Error ? e.message : "Terjadi kesalahan tak terduga.";
+        if (attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, 1500 * attempt));
+          continue;
+        }
+      }
     }
+
+    // All retries failed — save to localStorage as fallback so user
+    // doesn't lose their data.
+    try {
+      const pending = JSON.parse(
+        localStorage.getItem("ftrn_pending_registration") || "[]"
+      );
+      pending.push({ data, savedAt: new Date().toISOString() });
+      localStorage.setItem(
+        "ftrn_pending_registration",
+        JSON.stringify(pending)
+      );
+    } catch {
+      // ignore localStorage errors
+    }
+
+    toast.error("Gagal mendaftar", {
+      id: toastId,
+      description:
+        "Server sedang sibuk. Data kamu sudah disimpan otomatis. Silakan refresh halaman (Ctrl+Shift+R) lalu kirim ulang — biasanya langsung berhasil.",
+    });
   };
 
   if (success) {
