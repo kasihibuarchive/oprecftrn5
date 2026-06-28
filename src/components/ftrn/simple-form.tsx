@@ -270,13 +270,33 @@ export function SimpleForm() {
             label="Nomor WhatsApp"
             required
             error={errors.phone?.message}
+            hint="tanpa 0 di depan"
           >
-            <Input
-              placeholder="cth. 0812 3456 7890"
-              inputMode="tel"
-              className="h-12 rounded-xl"
-              {...register("phone")}
-            />
+            <div className="flex">
+              <span className="inline-flex select-none items-center rounded-l-xl border border-r-0 border-primary/20 bg-secondary/60 px-3.5 text-sm font-semibold text-foreground">
+                +62
+              </span>
+              <Input
+                placeholder="812 3456 7890"
+                inputMode="numeric"
+                className="h-12 rounded-l-none rounded-r-xl"
+                {...register("phone", {
+                  onChange: (e) => {
+                    // strip everything except digits, then remove leading 0(s)
+                    const cleaned = e.target.value
+                      .replace(/[^0-9]/g, "")
+                      .replace(/^0+/, "");
+                    if (e.target.value !== cleaned) {
+                      e.target.value = cleaned;
+                    }
+                  },
+                  setValueAs: (v) =>
+                    String(v ?? "")
+                      .replace(/[^0-9]/g, "")
+                      .replace(/^0+/, ""),
+                })}
+              />
+            </div>
           </FormField>
           <FormField
             label="Username Instagram"

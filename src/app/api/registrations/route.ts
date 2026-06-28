@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data;
 
+    // Normalize phone: store as +62XXXXXXXXXXX
+    const phoneNormalized = `+62${data.phone.trim()}`;
+
     // 1) Save locally (fallback / backup)
     const reg = await db.registration.create({
       data: {
@@ -42,7 +45,7 @@ export async function POST(req: NextRequest) {
         faculty: data.faculty,
         prodi: data.prodi,
         angkatan: data.angkatan,
-        phone: data.phone.trim(),
+        phone: phoneNormalized,
         instagram: data.instagram.trim().replace(/^@/, ""),
         bio: data.bio.trim(),
         firstChoiceDivision: data.firstChoiceDivision,

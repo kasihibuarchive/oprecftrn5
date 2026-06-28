@@ -34,8 +34,11 @@ export const registrationSchema = z
     phone: z
       .string()
       .min(8, { message: "Nomor WhatsApp minimal 8 digit" })
-      .max(20, { message: "Nomor terlalu panjang" })
-      .regex(/^[0-9+\-\s]+$/, { message: "Hanya angka, +, -, dan spasi" }),
+      .max(15, { message: "Nomor terlalu panjang" })
+      .regex(/^[0-9]+$/, { message: "Hanya angka (tanpa spasi atau +)" })
+      .refine((v) => !v.startsWith("0"), {
+        message: "Jangan pakai 0 di depan — +62 sudah otomatis",
+      }),
     instagram: z
       .string()
       .min(3, { message: "Username Instagram wajib diisi" })
