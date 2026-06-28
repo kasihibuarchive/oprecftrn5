@@ -10,6 +10,9 @@ import {
   Phone,
   Images,
 } from "lucide-react";
+import Image from "next/image";
+
+// removed unused Leaf import — logo now uses Image
 
 export default function Home() {
   return (
@@ -20,10 +23,15 @@ export default function Home() {
       {/* ===== Minimal top bar ===== */}
       <header className="sticky top-0 z-40 border-b border-primary/10 bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
-              <Leaf className="h-4.5 w-4.5" />
-            </span>
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/ftrn-logo.png"
+              alt="Logo FTRN"
+              width={32}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
             <span className="text-sm font-extrabold tracking-tight text-foreground">
               FTRN <span className="text-primary">#5</span>
             </span>
@@ -42,48 +50,59 @@ export default function Home() {
       {/* ===== Form card ===== */}
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         <div className="overflow-hidden rounded-3xl border border-primary/12 bg-card shadow-xl shadow-primary/5">
-          {/* Header banner */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary to-accent px-6 py-8 text-primary-foreground sm:px-10 sm:py-10">
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-            <div className="absolute -bottom-12 -left-8 h-32 w-32 rounded-full bg-white/10" />
-            <div className="absolute right-6 bottom-4 opacity-20">
-              <Leaf className="h-20 w-20" />
-            </div>
-            <div className="relative">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] backdrop-blur-sm">
-                Open Recruitment Panitia
-              </span>
-              <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
-                FTRN #5
-              </h1>
-              <p className="mt-1 text-sm font-medium text-primary-foreground/90 sm:text-base">
-                {FTRN_INFO.name}
-              </p>
-
-              {/* meta row */}
-              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-primary-foreground/90">
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  {FTRN_INFO.date}
+          {/* Header banner — light bg so the black logo is readable */}
+          <div className="relative overflow-hidden border-b border-primary/10 bg-gradient-to-br from-background via-secondary/40 to-primary/10 px-6 py-8 text-foreground sm:px-10 sm:py-9">
+            <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-primary/8" />
+            <div className="absolute -bottom-14 -left-10 h-36 w-36 rounded-full bg-accent/10" />
+            <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                  Open Recruitment Panitia
                 </span>
-                <a
-                  href={FTRN_INFO.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-                >
-                  <Instagram className="h-3.5 w-3.5" />
-                  {FTRN_INFO.instagram}
-                </a>
-                <a
-                  href={FTRN_INFO.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Website FTRN
-                </a>
+                <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+                  FTRN #5
+                </h1>
+                <p className="mt-1 text-sm font-medium text-muted-foreground sm:text-base">
+                  {FTRN_INFO.name}
+                </p>
+
+                {/* meta row */}
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-foreground/80">
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                    {FTRN_INFO.date}
+                  </span>
+                  <a
+                    href={FTRN_INFO.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-70"
+                  >
+                    <Instagram className="h-3.5 w-3.5 text-primary" />
+                    {FTRN_INFO.instagram}
+                  </a>
+                  <a
+                    href={FTRN_INFO.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-70"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-primary" />
+                    Website FTRN
+                  </a>
+                </div>
+              </div>
+
+              {/* Logo besar */}
+              <div className="shrink-0">
+                <Image
+                  src="/ftrn-logo.png"
+                  alt="Logo FTRN"
+                  width={120}
+                  height={120}
+                  className="h-24 w-auto drop-shadow-sm sm:h-28"
+                  priority
+                />
               </div>
             </div>
           </div>

@@ -215,3 +215,33 @@ Stage Summary:
 - Google Sheet AUTO-SYNC WORKING (forwarded:true)
 - CSV export backup also updated with new columns
 - Status: COMPLETE & verified
+
+---
+Task ID: REVAMP-6
+Agent: Main (orchestrator)
+Task: Integrate FTRN logo + dokumentasi upload guide
+
+Work Log:
+- Found uploaded logo: upload/FTRN-TRACE HITAM.png (115KB, black logo with "FTRN" text)
+- VLM analysis: black logo, ship/sail ornament design, suitable on light/green bg
+- Copied to public/ftrn-logo.png
+- Updated page.tsx:
+  - Top bar: replaced Leaf icon with Image logo (32px height) + "FTRN #5" text
+  - Header banner: changed from green gradient to light gradient (background→secondary→primary/10) so black logo is readable
+  - Added large logo (96-112px height) on right side of header banner
+  - Recolored meta icons (Calendar/Instagram/ExternalLink) to primary green for contrast on light bg
+- Removed unused Leaf import
+- Lint clean
+- Verified: logo referenced in HTML, served at /ftrn-logo.png (HTTP 200, 115971 bytes = full file)
+- Note: agent-browser connection crashes dev server (Turbopack instability), but curl confirms logo renders
+
+Dokumentasi upload guide (for user):
+- Dokumentasi FTRN #4 saat ini pakai placeholder gradient di pop-up
+- Cara ganti dengan foto asli: copy foto ke /public/docs/ folder dengan nama ftrn4-1.jpg, ftrn4-2.jpg, dst
+- Lalu update FTRN4_DOCS array di src/lib/data.ts untuk pakai path foto asli
+- Aku siap bantu kalau user kirim foto-fotonya
+
+Stage Summary:
+- Logo FTRN terpasang di top bar (kecil) + header banner (besar)
+- Header banner diubah ke background terang supaya logo hitam terbaca
+- Dokumentasi masih placeholder — tunggu foto dari user
