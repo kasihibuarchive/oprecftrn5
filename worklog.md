@@ -472,3 +472,37 @@ Key message to user:
 - Disable AdBlock on preview panel (it may be intercepting /api/registrations)
 - Hard refresh (Ctrl+Shift+R) to load new client JS with retry logic
 - Console errors 1 & 2 are from AdBlock extension, ignore them
+
+---
+Task ID: FIX-7
+Agent: Main (orchestrator)
+Task: Fix 500 error on submit with fire-and-forget Google Sheet sync
+
+Work Log:
+- Diagnosed: server crashes during/after Google Sheet fetch (await)
+- Root cause: fetch to script.google.com in dev server causes silent crash
+- Fix in api/registrations/route.ts:
+  - DB insert: still synchronous (await) — source of truth
+  - Google Sheet forward: fire-and-forget (Promise.resolve().then, no await)
+  - Client gets fast 201 before Google Sheet fetch can crash server
+  - googleSheet response: { forwarded: true, async: true }
+- Added /api/sync-sheet endpoint:
+  - POST: iterates all DB rows, re-syncs each to Google Sheet
+  - Use to recover data if fire-and-forget failed
+  - Tested: 9/9 synced, 0 failed
+- Verified: POST valid → 201 + server alive + sync-sheet confirms all data in Sheet
+- Committed & pushed: 4c41c87, 011484d
+
+Architecture now:
+1. User submits → POST /api/registrations
+2. DB insert (await) → data safe locally
+3. Google Sheet forward (fire-and-forget) → non-blocking
+4. Return 201 immediately → client sees success
+5. Background: Google Sheet fetch runs (may succeed or fail silently)
+6. Recovery: POST /api/sync-sheet re-syncs all DB rows to Sheet
+
+Stage Summary:
+- Submit now returns 201 reliably (fire-and-forget)
+- sync-sheet endpoint for data recovery
+- All test data (9 rows) confirmed in Google Sheet
+- Code pushed to GitHub
