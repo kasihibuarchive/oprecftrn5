@@ -283,3 +283,38 @@ Stage Summary:
 - Repo live at https://github.com/kasihibuarchive/oprecftrn5
 - All code pushed, sensitive files excluded
 - .env.example provided for deployment setup
+
+---
+Task ID: FIX-1
+Agent: Main (orchestrator)
+Task: Fix character count stuck at 0, fix submit not working, remove availability field
+
+Work Log:
+- Diagnosed issue 2 (character count stuck at 0/800):
+  - Root cause: code used `watch.bio` (property access on function object)
+  - react-hook-form's `watch` is a FUNCTION, not a proxy/object
+  - `watch.bio` returns `undefined` → `watched(undefined)` = 0 → count stuck
+  - Fix: changed all `watch.fieldName` → `watch("fieldName")` (5 occurrences)
+- Issue 1 (can't submit): same root cause — broken form reactivity from stale
+  Turbopack HMR state + the watch bug. After cleaning .next cache + fixing watch,
+  submit works: POST 201, googleSheet forwarded:true
+- Issue 3 (remove availability): removed from:
+  - simple-form.tsx (field + defaultValues)
+  - schema.ts (zod field)
+  - api/registrations/route.ts (db.create + sheet payload)
+  - api/registrations/export/route.ts (CSV column)
+  - prisma/schema.prisma (model field)
+  - google-sheet.ts (Apps Script comment)
+- Also removed unused Leaf import from page.tsx
+- DB force-reset (test data only, acceptable)
+- Cleaned .next cache, restarted server fresh
+
+Verification:
+- Character count: filled biodata → count shows "68/800" (was stuck at 0) ✅
+- Submit: full valid POST → 201 + googleSheet forwarded:true ✅
+- Availability field: 0 occurrences in form snapshot ✅
+- Pushed to GitHub: commit 9124777
+
+Stage Summary:
+- All 3 user-reported issues fixed and verified
+- Code pushed to https://github.com/kasihibuarchive/oprecftrn5
