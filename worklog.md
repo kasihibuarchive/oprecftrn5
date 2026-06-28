@@ -121,3 +121,26 @@ Stage Summary:
 - Benefits = 5 items as requested, checkmark style only
 - All sparkle/star/party-popper symbols removed
 - Awaiting user to deploy Apps Script and send the /exec URL to enable Google Sheet forwarding
+
+---
+Task ID: REVAMP-3
+Agent: Main (orchestrator)
+Task: Configure Google Sheet webhook URL
+
+Work Log:
+- User provided Apps Script Web App URL (Workspace domain students.isi.ac.id)
+- Direct curl test: POST returns 401, GET redirects to Google login with hd=students.isi.ac.id
+- Diagnosis: Web App bound to ISI Yogyakarta Workspace domain — admin policy requires org login, blocks anonymous access
+- Even though user selected "Anyone" at deploy, the /a/macros/students.isi.ac.id/ path forces domain auth
+- Updated .env GOOGLE_SHEET_WEBHOOK_URL to user's URL (ready to work once access fixed)
+- Tested local API: POST /api/registrations still returns success:true, saves to local DB, googleSheet:{forwarded:false,reason:http_error,status:404} — graceful fallback works
+
+Fix needed from user:
+- Redeploy the Apps Script from a PERSONAL @gmail.com account (not students.isi.ac.id)
+- Personal accounts have no Workspace admin restrictions, so "Anyone" = truly anonymous
+- The resulting URL will be https://script.google.com/macros/s/.../exec (no /a/domain/ part)
+
+Stage Summary:
+- .env configured with user's URL
+- Local fallback active: all registrations saved to SQLite regardless of Sheet status
+- Awaiting personal-Gmail redeployment URL to enable live Google Sheet sync
