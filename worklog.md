@@ -383,3 +383,37 @@ Stage Summary:
 - Auto-strips leading 0 and non-digits
 - Stored in DB + Google Sheet as +62XXXXXXXXXXX
 - Code pushed to GitHub
+
+---
+Task ID: FIX-4
+Agent: Main (orchestrator)
+Task: Replace documentation with recruitment timeline + fix submit stability
+
+Work Log:
+- Removed docs-dialog.tsx (Dokumentasi FTRN #4 pop-up) entirely
+- Added RECRUITMENT_TIMELINE data to data.ts:
+  - 28 Jun: Open Recruitment
+  - Proses: Seleksi
+  - 10 Jul: Close Recruitment
+- Created timeline.tsx: inline horizontal timeline with 3 nodes,
+  gradient connector line, animated reveal (framer-motion)
+- Updated page.tsx: Timeline section replaces docs, quick links now
+  only has 'Benefit Panitia' button
+- Removed unused DocsButton/Images imports from page.tsx & simple-form.tsx
+- Switched dev server from Turbopack to webpack (--webpack flag in package.json)
+  - Turbopack crashed frequently causing 'gagal mendaftar' errors
+  - webpack bundler more stable, POST 201 confirmed working
+- Verified via curl: POST valid → 201 + googleSheet forwarded:true
+- Verified via agent-browser: timeline displays correctly, docs removed
+- Committed & pushed: 4c6e616
+
+Server stability note:
+- webpack is more stable than Turbopack but still crashes occasionally
+  in this sandbox after multiple requests
+- Production deploy (Vercel) uses compiled build = fully stable
+- User should hard-refresh browser (Ctrl+Shift+R) to clear stale HMR state
+
+Stage Summary:
+- Timeline replaces documentation ✓
+- webpack bundler improves dev server stability ✓
+- All changes pushed to GitHub
