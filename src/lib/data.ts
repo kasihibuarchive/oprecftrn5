@@ -217,13 +217,16 @@ export const BENEFITS = [
 ] as const;
 
 export const FTRN_INFO = {
-  name: "Festival Teater Rakyat Nasional",
+  name: "Festival Teater Remaja Nusantara",
+  shortName: "FTRN",
   edition: "#5",
   date: "3–8 Agustus 2026",
   dateShort: "3–8 AUG 2026",
   organizer: "HMJ Teater ISI Yogyakarta",
   scale: "Skala Nasional",
-  website: "https://ftrn-isijogja.com",
+  website: "https://ftrnv.vercel.app",
+  instagram: "@ftrn.isijogja",
+  instagramUrl: "https://instagram.com/ftrn.isijogja",
   contact: {
     name: "Dinda Aprilia Hentari",
     role: "Ketua Pelaksana FTRN #5",

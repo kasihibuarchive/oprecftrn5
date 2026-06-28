@@ -12,12 +12,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Open Recruitment Panitia FTRN #5 — Festival Teater Rakyat Nasional",
+  title: "Open Recruitment Panitia FTRN #5 — Festival Teater Remaja Nusantara",
   description:
-    "Pendaftaran panitia Festival Teater Rakyat Nasional #5 (3-8 Agustus 2026). Festival teater skala nasional oleh HMJ Teater ISI Yogyakarta. Ayo bergabung jadi bagian dari panggung terbesar ini!",
+    "Pendaftaran panitia Festival Teater Remaja Nusantara #5 (3-8 Agustus 2026). Festival teater skala nasional oleh HMJ Teater ISI Yogyakarta.",
   keywords: [
     "FTRN",
-    "Festival Teater Rakyat Nasional",
+    "Festival Teater Remaja Nusantara",
     "Open Recruitment",
     "Panitia",
     "ISI Yogyakarta",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Open Recruitment Panitia FTRN #5",
     description:
-      "Festival Teater Rakyat Nasional #5 — 3-8 Agustus 2026. Bergabung jadi panitia panggung terbesar nasional.",
+      "Festival Teater Remaja Nusantara #5 — 3-8 Agustus 2026. Bergabung jadi panitia panggung terbesar nasional.",
     type: "website",
   },
 };

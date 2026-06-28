@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { registrationSchema } from "@/lib/schema";
+import { forwardToGoogleSheet, GOOGLE_SHEET_WEBHOOK_URL } from "@/lib/google-sheet";
+import { DIVISIONS } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
+
+function divisionName(id: string): string {
+  return DIVISIONS.find((d) => d.id === id)?.name ?? id;
+}
 
 /* POST /api/registrations — submit a new registration */
 export async function POST(req: NextRequest) {
@@ -27,6 +33,8 @@ export async function POST(req: NextRequest) {
     }
 
     const data = parsed.data;
+
+    // 1) Save locally (fallback / backup)
     const reg = await db.registration.create({
       data: {
         fullName: data.fullName.trim(),
@@ -47,11 +55,35 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // 2) Forward to Google Spreadsheet (if configured)
+    const sheetPayload = {
+      timestamp: reg.createdAt.toISOString(),
+      fullName: reg.fullName,
+      faculty: reg.faculty,
+      phone: reg.phone,
+      instagram: reg.instagram,
+      bio: reg.bio,
+      firstChoiceDivision: divisionName(reg.firstChoiceDivision),
+      firstChoiceStatement: reg.firstChoiceStatement,
+      secondChoiceDivision: divisionName(reg.secondChoiceDivision),
+      secondChoiceStatement: reg.secondChoiceStatement,
+      skills: reg.skills ?? "",
+      experience: reg.experience ?? "",
+      portfolioLink: reg.portfolioLink ?? "",
+      motivation: reg.motivation ?? "",
+      availability: reg.availability ?? "",
+    };
+    const sheetResult = await forwardToGoogleSheet(sheetPayload);
+
     return NextResponse.json(
       {
         success: true,
         id: reg.id,
         message: "Pendaftaran berhasil terkirim",
+        googleSheet:
+          GOOGLE_SHEET_WEBHOOK_URL !== ""
+            ? sheetResult
+            : { forwarded: false, reason: "not_configured" },
       },
       { status: 201 }
     );

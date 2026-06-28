@@ -66,3 +66,35 @@ Verification (Agent Browser):
 - Full-page VLM eval: consistent green theme, professional layout, no broken sections, eye-catching
 
 Status: COMPLETE - all features working end-to-end
+
+---
+Task ID: REVAMP-1
+Agent: Main (orchestrator)
+Task: Simplify to Google-Form style + correct FTRN name + prepare Google Sheet backend
+
+Work Log:
+- Corrected FTRN name: Festival Teater Remaja Nusantara (was: Rakyat Nasional)
+- Updated website to https://ftrnv.vercel.app, IG to @ftrn.isijogja
+- Created new SimpleForm component (single column, Select dropdowns for divisions, gform-like)
+- Removed heavy sections: hero, about, divisions showcase, contact, navbar, footer-complex, division-picker (popover), registration-form (old multi-section)
+- New page.tsx: single centered card with gradient header banner, quick-link buttons (Benefit + Dokumentasi), form body, contact line, minimal footer
+- Created src/lib/google-sheet.ts helper (forwardToGoogleSheet + GOOGLE_SHEET_WEBHOOK_URL env)
+- Updated POST /api/registrations: saves locally + forwards to Google Sheet webhook (if configured), returns googleSheet status
+- Added GOOGLE_SHEET_WEBHOOK_URL= placeholder in .env with Apps Script example in comments
+- Removed /api/registrations/export (CSV) route — now using Google Sheet
+- Lint clean, dev server running, no errors
+
+Verification (Agent Browser):
+- Page loads: title "Festival Teater Remaja Nusantara" correct
+- Form layout: gform-like single card, header banner + quick links + fields
+- Filled all fields via Select dropdowns (Konten Kreator 1st, Dokumentasi 2nd)
+- Submit -> POST /api/registrations 201, success state "Pendaftaran Terkirim!" with checkmark
+- API response includes googleSheet: { forwarded: false, reason: "not_configured" } (correct until user provides webhook URL)
+- Benefit pop-up works (6 benefits), Dokumentasi pop-up works (6 gallery items)
+- Mobile (iPhone 14) full-page: responsive, no overflow, all elements readable
+
+Stage Summary:
+- Form is now as simple as Google Form (single centered card, no website sections)
+- Backend ready for Google Spreadsheet: user just needs to set GOOGLE_SHEET_WEBHOOK_URL in .env with their Apps Script Web App URL
+- All corrections applied (FTRN name, website, IG)
+- Status: COMPLETE & verified
