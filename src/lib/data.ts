@@ -2,7 +2,7 @@ import {
   HandCoins,
   Camera,
   PenTool,
-  Sparkles,
+  Droplets,
   BedDouble,
   Users,
   Lightbulb,
@@ -68,7 +68,7 @@ export const DIVISIONS: Division[] = [
     id: "k3",
     name: "K3 (Kebersihan, Konsumsi, Kesehatan)",
     short: "K3",
-    icon: Sparkles,
+    icon: Droplets,
     desc: "Memastikan kebersihan venue, konsumsi panitia & peserta, serta penanganan kesehatan dasar.",
     tasks: [
       "Kebersihan area acara",
@@ -184,36 +184,11 @@ export const DIVISIONS: Division[] = [
 ];
 
 export const BENEFITS = [
-  {
-    title: "Sertifikat Resmi",
-    desc: "Pengakuan sebagai panitia Festival Teater Rakyat Nasional #5 oleh HMJ Teater ISI Yogyakarta.",
-    icon: "scroll",
-  },
-  {
-    title: "Relasi Nasional",
-    desc: "Berjejalan dengan seniman, teaternese, dan komunitas teater dari berbagai daerah se-Indonesia.",
-    icon: "users",
-  },
-  {
-    title: "Pengalaman Panggung Besar",
-    desc: "Belajar langsung menggelola event teater skala nasional selama 3–8 Agustus 2026.",
-    icon: "sparkles",
-  },
-  {
-    title: "Knowledge & Skill Transfer",
-    desc: "Workshop internal, briefing teknis, dan mentoring dari divisi profesional.",
-    icon: "book-open",
-  },
-  {
-    title: "Merchandise Eksklusif",
-    desc: "Merch FTRN #5 khusus panitia — desain limited yang nggak dijual bebas.",
-    icon: "gift",
-  },
-  {
-    title: "Kenangan & Keluarga Baru",
-    desc: "Menjadi bagian dari keluarga besar FTRN — ikatan yang terus hidup setelah panggung usai.",
-    icon: "heart",
-  },
+  "E-Certificate",
+  "Networking dengan seniman & peserta dari seluruh Indonesia",
+  "Pengalaman mengelola festival teater tingkat nasional",
+  "Menambah portofolio & pengalaman organisasi",
+  "Dokumentasi Behind the Scene Festival Teater",
 ] as const;
 
 export const FTRN_INFO = {

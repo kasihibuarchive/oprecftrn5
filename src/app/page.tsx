@@ -8,7 +8,6 @@ import {
   Instagram,
   CalendarDays,
   Phone,
-  Sparkles,
   Images,
 } from "lucide-react";
 
@@ -95,7 +94,6 @@ export default function Home() {
               Lihat:
             </span>
             <BenefitsButton variant="outline" className="h-8 rounded-full px-3.5 text-xs">
-              <Sparkles className="mr-1 h-3.5 w-3.5" />
               Benefit
             </BenefitsButton>
             <DocsButton variant="outline" className="h-8 rounded-full px-3.5 text-xs">

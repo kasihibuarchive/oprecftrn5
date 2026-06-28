@@ -98,3 +98,26 @@ Stage Summary:
 - Backend ready for Google Spreadsheet: user just needs to set GOOGLE_SHEET_WEBHOOK_URL in .env with their Apps Script Web App URL
 - All corrections applied (FTRN name, website, IG)
 - Status: COMPLETE & verified
+
+---
+Task ID: REVAMP-2
+Agent: Main (orchestrator)
+Task: Update benefits to 5 items + remove AI-looking symbols + Google Sheet deploy info
+
+Work Log:
+- Updated BENEFITS in data.ts to 5-item array (E-Certificate, Networking, Pengalaman, Portofolio, Dokumentasi BTS) — removed icon field
+- Rewrote benefits-dialog.tsx: simple checkmark list (green check in circle), no flashy icons, no gradient banner, clean header
+- Removed Sparkles icon usage from page.tsx (Benefit button) and simple-form.tsx (success state)
+- Removed PartyPopper from success state heading
+- Replaced K3 division icon Sparkles -> Droplets (more neutral, no sparkle look)
+- Lint clean, browser verified: benefit pop-up shows 5 items with only green checkmarks, no AI-looking symbols
+
+Google Sheet note:
+- User sent Apps Script EDITOR URL (/home/projects/.../edit), not deployment URL
+- Need to guide user to Deploy > New deployment > Web app > "Anyone" access > copy /macros/s/.../exec URL
+- Apps Script doPost code already documented in src/lib/google-sheet.ts comment
+
+Stage Summary:
+- Benefits = 5 items as requested, checkmark style only
+- All sparkle/star/party-popper symbols removed
+- Awaiting user to deploy Apps Script and send the /exec URL to enable Google Sheet forwarding

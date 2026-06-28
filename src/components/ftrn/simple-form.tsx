@@ -7,10 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   CheckCircle2,
-  PartyPopper,
-  Sparkles,
-  Images,
-  ExternalLink,
   Send,
   RotateCcw,
   ArrowUp,
@@ -457,8 +453,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
         </div>
       </div>
 
-      <h2 className="flex items-center justify-center gap-2 text-2xl font-extrabold tracking-tight text-foreground">
-        <PartyPopper className="h-6 w-6 text-accent" />
+      <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
         Pendaftaran Terkirim!
       </h2>
       <p className="mx-auto mt-3 max-w-md text-pretty text-sm font-light leading-relaxed text-muted-foreground">
