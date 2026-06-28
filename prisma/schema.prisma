@@ -31,7 +31,6 @@ model Registration {
   experience             String?
   portfolioLink          String?
   motivation             String?
-  availability           String?
   // Meta
   agree                  Boolean  @default(false)
   createdAt              DateTime @default(now())

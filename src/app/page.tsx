@@ -1,4 +1,3 @@
-import { Leaf } from "@/components/ftrn/nature-decor";
 import { BenefitsButton } from "@/components/ftrn/benefits-dialog";
 import { DocsButton } from "@/components/ftrn/docs-dialog";
 import { SimpleForm } from "@/components/ftrn/simple-form";
@@ -11,8 +10,6 @@ import {
   Images,
 } from "lucide-react";
 import Image from "next/image";
-
-// removed unused Leaf import — logo now uses Image
 
 export default function Home() {
   return (

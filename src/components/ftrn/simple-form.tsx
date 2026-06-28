@@ -67,7 +67,6 @@ export function SimpleForm() {
       experience: "",
       portfolioLink: "",
       motivation: "",
-      availability: "",
       agree: false as unknown as true,
     },
     mode: "onTouched",
@@ -269,7 +268,7 @@ export function SimpleForm() {
           label="Biodata Singkat"
           required
           error={errors.bio?.message}
-          hint={`${watched(watch.bio)}/800`}
+          hint={`${watched(watch("bio"))}/800`}
         >
           <Textarea
             placeholder="Ceritakan sedikit tentang dirimu — hobi, minat, pengalaman, dll."
@@ -300,7 +299,7 @@ export function SimpleForm() {
                 </SelectTrigger>
                 <SelectContent className="max-h-80 rounded-xl">
                   {DIVISIONS.filter(
-                    (d) => d.id !== watch.secondChoiceDivision
+                    (d) => d.id !== watch("secondChoiceDivision")
                   ).map((d) => (
                     <SelectItem key={d.id} value={d.id} className="rounded-lg">
                       <span className="flex items-center gap-2">
@@ -319,7 +318,7 @@ export function SimpleForm() {
           label="Statement — Kenapa divisi ini?"
           required
           error={errors.firstChoiceStatement?.message}
-          hint={`${watched(watch.firstChoiceStatement)}/1000`}
+          hint={`${watched(watch("firstChoiceStatement"))}/1000`}
         >
           <Textarea
             placeholder="Tuliskan alasan & apa yang bisa kamu kontribusikan…"
@@ -347,7 +346,7 @@ export function SimpleForm() {
                 </SelectTrigger>
                 <SelectContent className="max-h-80 rounded-xl">
                   {DIVISIONS.filter(
-                    (d) => d.id !== watch.firstChoiceDivision
+                    (d) => d.id !== watch("firstChoiceDivision")
                   ).map((d) => (
                     <SelectItem key={d.id} value={d.id} className="rounded-lg">
                       <span className="flex items-center gap-2">
@@ -366,7 +365,7 @@ export function SimpleForm() {
           label="Statement — Kenapa jadi alternatif?"
           required
           error={errors.secondChoiceStatement?.message}
-          hint={`${watched(watch.secondChoiceStatement)}/1000`}
+          hint={`${watched(watch("secondChoiceStatement"))}/1000`}
         >
           <Textarea
             placeholder="Ceritakan kenapa divisi ini layak jadi alternatif…"
@@ -392,30 +391,17 @@ export function SimpleForm() {
           />
         </FormField>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            label="Link Portfolio / Drive"
-            hint="opsional"
-            error={errors.portfolioLink?.message}
-          >
-            <Input
-              placeholder="https://…"
-              className="h-12 rounded-xl"
-              {...register("portfolioLink")}
-            />
-          </FormField>
-          <FormField
-            label="Ketersediaan Waktu"
-            hint="opsional"
-            error={errors.availability?.message}
-          >
-            <Input
-              placeholder="cth. Full / weekend saja"
-              className="h-12 rounded-xl"
-              {...register("availability")}
-            />
-          </FormField>
-        </div>
+        <FormField
+          label="Link Portfolio / Drive"
+          hint="opsional"
+          error={errors.portfolioLink?.message}
+        >
+          <Input
+            placeholder="https://…"
+            className="h-12 rounded-xl"
+            {...register("portfolioLink")}
+          />
+        </FormField>
 
         <FormField
           label="Pengalaman Organisasi / Event"

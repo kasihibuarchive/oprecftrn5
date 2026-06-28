@@ -20,7 +20,7 @@
  *         "Angkatan", "No. WhatsApp", "Instagram", "Biodata",
  *         "1st Choice Divisi", "Statement 1st Choice",
  *         "2nd Choice Divisi", "Statement 2nd Choice", "Keahlian",
- *         "Pengalaman", "Portfolio Link", "Motivasi", "Ketersediaan Waktu"
+ *         "Pengalaman", "Portfolio Link", "Motivasi"
  *       ]);
  *     }
  *     sheet.appendRow([
@@ -28,7 +28,7 @@
  *       p.phone, p.instagram, p.bio,
  *       p.firstChoiceDivision, p.firstChoiceStatement,
  *       p.secondChoiceDivision, p.secondChoiceStatement,
- *       p.skills, p.experience, p.portfolioLink, p.motivation, p.availability
+ *       p.skills, p.experience, p.portfolioLink, p.motivation
  *     ]);
  *     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
  *       .setMimeType(ContentService.MimeType.JSON);

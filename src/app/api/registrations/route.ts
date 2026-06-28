@@ -53,7 +53,6 @@ export async function POST(req: NextRequest) {
         experience: data.experience?.trim() || null,
         portfolioLink: data.portfolioLink?.trim() || null,
         motivation: data.motivation?.trim() || null,
-        availability: data.availability?.trim() || null,
         agree: true,
       },
     });
@@ -77,7 +76,6 @@ export async function POST(req: NextRequest) {
       experience: reg.experience ?? "",
       portfolioLink: reg.portfolioLink ?? "",
       motivation: reg.motivation ?? "",
-      availability: reg.availability ?? "",
     };
     const sheetResult = await forwardToGoogleSheet(sheetPayload);
 

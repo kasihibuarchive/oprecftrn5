@@ -83,7 +83,6 @@ export const registrationSchema = z
       .max(800, { message: "Maksimal 800 karakter" })
       .optional()
       .or(z.literal("")),
-    availability: z.string().optional().or(z.literal("")),
 
     // Agreement
     agree: z.literal(true, {

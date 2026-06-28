@@ -41,7 +41,6 @@ export async function GET() {
       "Pengalaman",
       "Portfolio Link",
       "Motivasi",
-      "Ketersediaan Waktu",
     ];
 
     const lines = [headers.join(",")];
@@ -66,7 +65,6 @@ export async function GET() {
           r.experience ?? "",
           r.portfolioLink ?? "",
           r.motivation ?? "",
-          r.availability ?? "",
         ]
           .map(escapeCsv)
           .join(",")
