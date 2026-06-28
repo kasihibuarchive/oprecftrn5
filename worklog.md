@@ -351,3 +351,35 @@ Stage Summary:
 - Error handling improved (clearer messages for server-down scenarios)
 - Code pushed to GitHub
 - Recommend Vercel deploy for production stability
+
+---
+Task ID: FIX-3
+Agent: Main (orchestrator)
+Task: WhatsApp field with fixed +62 prefix, auto-strip leading 0
+
+Work Log:
+- User reported: phone field can't accept leading 0, wants +62 prefix fixed
+- Updated schema.ts phone validation:
+  - regex digits-only (no spaces, +, -)
+  - refine: must NOT start with 0
+  - error message: "Jangan pakai 0 di depan — +62 sudah otomatis"
+- Updated simple-form.tsx WhatsApp field:
+  - Input group: non-editable "+62" box on left (bg-secondary, border)
+  - Input on right: placeholder "812 3456 7890"
+  - onChange: strips non-digits + leading 0(s) in real-time
+  - setValueAs: same normalization when form reads value
+  - hint text: "tanpa 0 di depan"
+- Updated API route: phoneNormalized = `+62${data.phone}` before DB + Sheet
+- Verified via curl:
+  - phone "0812..." → REJECTED ✓ with clear message
+  - phone "812..." → ACCEPTED, stored as "+62812..." ✓
+  - googleSheet forwarded:true ✓
+- UI verified via agent-browser: +62 prefix box visible next to input
+- Committed & pushed: 4c87f0b
+
+Stage Summary:
+- WhatsApp field now shows fixed "+62" prefix
+- User only types the rest (e.g. 812 3456 7890)
+- Auto-strips leading 0 and non-digits
+- Stored in DB + Google Sheet as +62XXXXXXXXXXX
+- Code pushed to GitHub
