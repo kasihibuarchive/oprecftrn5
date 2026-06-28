@@ -60,37 +60,46 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 2) Forward to Google Spreadsheet (if configured)
-    const sheetPayload = {
-      timestamp: reg.createdAt.toISOString(),
-      fullName: reg.fullName,
-      nim: reg.nim,
-      faculty: facultyName(reg.faculty),
-      prodi: reg.prodi,
-      angkatan: reg.angkatan,
-      phone: reg.phone,
-      instagram: reg.instagram,
-      bio: reg.bio,
-      firstChoiceDivision: divisionName(reg.firstChoiceDivision),
-      firstChoiceStatement: reg.firstChoiceStatement,
-      secondChoiceDivision: divisionName(reg.secondChoiceDivision),
-      secondChoiceStatement: reg.secondChoiceStatement,
-      skills: reg.skills ?? "",
-      experience: reg.experience ?? "",
-      portfolioLink: reg.portfolioLink ?? "",
-      motivation: reg.motivation ?? "",
-    };
-    const sheetResult = await forwardToGoogleSheet(sheetPayload);
+    // 2) Forward to Google Spreadsheet (fire-and-forget, non-blocking)
+    // Data is already safely saved to DB above. Google Sheet sync runs in
+    // background so that even if it's slow/crashes, the client gets a fast
+    // 201 response. A separate /api/sync-sheet endpoint can re-sync later.
+    if (GOOGLE_SHEET_WEBHOOK_URL !== "") {
+      const sheetPayload = {
+        timestamp: reg.createdAt.toISOString(),
+        fullName: reg.fullName,
+        nim: reg.nim,
+        faculty: facultyName(reg.faculty),
+        prodi: reg.prodi,
+        angkatan: reg.angkatan,
+        phone: reg.phone,
+        instagram: reg.instagram,
+        bio: reg.bio,
+        firstChoiceDivision: divisionName(reg.firstChoiceDivision),
+        firstChoiceStatement: reg.firstChoiceStatement,
+        secondChoiceDivision: divisionName(reg.secondChoiceDivision),
+        secondChoiceStatement: reg.secondChoiceStatement,
+        skills: reg.skills ?? "",
+        experience: reg.experience ?? "",
+        portfolioLink: reg.portfolioLink ?? "",
+        motivation: reg.motivation ?? "",
+      };
+      // Schedule in background — do NOT await
+      Promise.resolve()
+        .then(() => forwardToGoogleSheet(sheetPayload))
+        .catch(() => {
+          /* silently ignore — data already in DB */
+        });
+    }
 
     return NextResponse.json(
       {
         success: true,
         id: reg.id,
         message: "Pendaftaran berhasil terkirim",
-        googleSheet:
-          GOOGLE_SHEET_WEBHOOK_URL !== ""
-            ? sheetResult
-            : { forwarded: false, reason: "not_configured" },
+        googleSheet: GOOGLE_SHEET_WEBHOOK_URL !== ""
+          ? { forwarded: true, async: true }
+          : { forwarded: false, reason: "not_configured" },
       },
       { status: 201 }
     );
