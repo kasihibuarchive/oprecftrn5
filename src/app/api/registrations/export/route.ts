@@ -16,8 +16,15 @@ function divisionName(id: string): string {
   return DIVISIONS.find((d) => d.id === id)?.name ?? id;
 }
 
-/* GET /api/registrations/export — download CSV (Google Sheets ready) */
+/* GET /api/registrations/export — download CSV (Google Sheets ready)
+ * Note: On Vercel serverless, DB may be unavailable. Returns 503 in that case. */
 export async function GET() {
+  if (!db) {
+    return NextResponse.json(
+      { error: "Database tidak tersedia di environment ini" },
+      { status: 503 }
+    );
+  }
   try {
     const rows = await db.registration.findMany({
       orderBy: { createdAt: "desc" },
@@ -71,7 +78,7 @@ export async function GET() {
       );
     }
 
-    const csv = "\uFEFF" + lines.join("\r\n"); // BOM for Excel/Sheets UTF-8
+    const csv = "\uFEFF" + lines.join("\r\n");
 
     return new NextResponse(csv, {
       status: 200,

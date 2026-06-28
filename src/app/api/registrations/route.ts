@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { registrationSchema } from "@/lib/schema";
-import { forwardToGoogleSheet, GOOGLE_SHEET_WEBHOOK_URL } from "@/lib/google-sheet";
+import {
+  forwardToGoogleSheet,
+  GOOGLE_SHEET_WEBHOOK_URL,
+} from "@/lib/google-sheet";
 import { DIVISIONS, facultyName } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +13,17 @@ function divisionName(id: string): string {
   return DIVISIONS.find((d) => d.id === id)?.name ?? id;
 }
 
-/* POST /api/registrations — submit a new registration */
+/* POST /api/registrations — submit a new registration
+ *
+ * Architecture:
+ *   1. Validate input (zod)
+ *   2. Forward to Google Sheet (PRIMARY, awaited) — this is the real data store
+ *   3. Save to local DB (BEST-EFFORT, try/catch) — backup only
+ *   4. Return 201 if Google Sheet succeeded
+ *
+ * On Vercel/serverless, DB (SQLite) may be read-only or unavailable.
+ * That's fine — Google Sheet is the source of truth.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
@@ -33,75 +46,87 @@ export async function POST(req: NextRequest) {
     }
 
     const data = parsed.data;
-
-    // Normalize phone: store as +62XXXXXXXXXXX
     const phoneNormalized = `+62${data.phone.trim()}`;
 
-    // 1) Save locally (fallback / backup)
-    const reg = await db.registration.create({
-      data: {
-        fullName: data.fullName.trim(),
-        nim: data.nim.trim(),
-        faculty: data.faculty,
-        prodi: data.prodi,
-        angkatan: data.angkatan,
-        phone: phoneNormalized,
-        instagram: data.instagram.trim().replace(/^@/, ""),
-        bio: data.bio.trim(),
-        firstChoiceDivision: data.firstChoiceDivision,
-        firstChoiceStatement: data.firstChoiceStatement.trim(),
-        secondChoiceDivision: data.secondChoiceDivision,
-        secondChoiceStatement: data.secondChoiceStatement.trim(),
-        skills: data.skills?.trim() || null,
-        experience: data.experience?.trim() || null,
-        portfolioLink: data.portfolioLink?.trim() || null,
-        motivation: data.motivation?.trim() || null,
-        agree: true,
-      },
-    });
+    const sheetPayload = {
+      timestamp: new Date().toISOString(),
+      fullName: data.fullName.trim(),
+      nim: data.nim.trim(),
+      faculty: facultyName(data.faculty),
+      prodi: data.prodi,
+      angkatan: data.angkatan,
+      phone: phoneNormalized,
+      instagram: data.instagram.trim().replace(/^@/, ""),
+      bio: data.bio.trim(),
+      firstChoiceDivision: divisionName(data.firstChoiceDivision),
+      firstChoiceStatement: data.firstChoiceStatement.trim(),
+      secondChoiceDivision: divisionName(data.secondChoiceDivision),
+      secondChoiceStatement: data.secondChoiceStatement.trim(),
+      skills: data.skills?.trim() ?? "",
+      experience: data.experience?.trim() ?? "",
+      portfolioLink: data.portfolioLink?.trim() ?? "",
+      motivation: data.motivation?.trim() ?? "",
+    };
 
-    // 2) Forward to Google Spreadsheet (fire-and-forget, non-blocking)
-    // Data is already safely saved to DB above. Google Sheet sync runs in
-    // background so that even if it's slow/crashes, the client gets a fast
-    // 201 response. A separate /api/sync-sheet endpoint can re-sync later.
-    if (GOOGLE_SHEET_WEBHOOK_URL !== "") {
-      const sheetPayload = {
-        timestamp: reg.createdAt.toISOString(),
-        fullName: reg.fullName,
-        nim: reg.nim,
-        faculty: facultyName(reg.faculty),
-        prodi: reg.prodi,
-        angkatan: reg.angkatan,
-        phone: reg.phone,
-        instagram: reg.instagram,
-        bio: reg.bio,
-        firstChoiceDivision: divisionName(reg.firstChoiceDivision),
-        firstChoiceStatement: reg.firstChoiceStatement,
-        secondChoiceDivision: divisionName(reg.secondChoiceDivision),
-        secondChoiceStatement: reg.secondChoiceStatement,
-        skills: reg.skills ?? "",
-        experience: reg.experience ?? "",
-        portfolioLink: reg.portfolioLink ?? "",
-        motivation: reg.motivation ?? "",
-      };
-      // Schedule in background — do NOT await
-      Promise.resolve()
-        .then(() => forwardToGoogleSheet(sheetPayload))
-        .catch(() => {
-          /* silently ignore — data already in DB */
+    // 1) PRIMARY: forward to Google Sheet (await)
+    const sheetResult =
+      GOOGLE_SHEET_WEBHOOK_URL !== ""
+        ? await forwardToGoogleSheet(sheetPayload)
+        : { forwarded: false, reason: "not_configured" as const };
+
+    // 2) BEST-EFFORT: save to local DB (backup, ignore errors)
+    //    On Vercel serverless, this may fail (read-only fs) — that's OK.
+    let dbSaved = false;
+    if (db) {
+      try {
+        await db.registration.create({
+          data: {
+            fullName: data.fullName.trim(),
+            nim: data.nim.trim(),
+            faculty: data.faculty,
+            prodi: data.prodi,
+            angkatan: data.angkatan,
+            phone: phoneNormalized,
+            instagram: data.instagram.trim().replace(/^@/, ""),
+            bio: data.bio.trim(),
+            firstChoiceDivision: data.firstChoiceDivision,
+            firstChoiceStatement: data.firstChoiceStatement.trim(),
+            secondChoiceDivision: data.secondChoiceDivision,
+            secondChoiceStatement: data.secondChoiceStatement.trim(),
+            skills: data.skills?.trim() || null,
+            experience: data.experience?.trim() || null,
+            portfolioLink: data.portfolioLink?.trim() || null,
+            motivation: data.motivation?.trim() || null,
+            agree: true,
+          },
         });
+        dbSaved = true;
+      } catch (dbErr) {
+        // DB unavailable (read-only fs, connection error, etc.) — not fatal
+        console.warn("[POST /api/registrations] DB save skipped:", dbErr);
+      }
     }
 
+    // Success if Google Sheet forwarded OR DB saved (at least one worked)
+    if (sheetResult.forwarded || dbSaved) {
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Pendaftaran berhasil terkirim",
+          googleSheet: sheetResult,
+          dbSaved,
+        },
+        { status: 201 }
+      );
+    }
+
+    // Both failed
     return NextResponse.json(
       {
-        success: true,
-        id: reg.id,
-        message: "Pendaftaran berhasil terkirim",
-        googleSheet: GOOGLE_SHEET_WEBHOOK_URL !== ""
-          ? { forwarded: true, async: true }
-          : { forwarded: false, reason: "not_configured" },
+        error: "Gagal menyimpan pendaftaran. Coba lagi sebentar.",
+        googleSheet: sheetResult,
       },
-      { status: 201 }
+      { status: 502 }
     );
   } catch (e) {
     console.error("[POST /api/registrations] error:", e);
@@ -112,20 +137,19 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* GET /api/registrations — list all registrations (spreadsheet-like) */
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const limit = Math.min(
-      Number(searchParams.get("limit") ?? "100"),
-      500
+/* GET /api/registrations — list all registrations from DB (if available) */
+export async function GET() {
+  if (!db) {
+    return NextResponse.json(
+      { success: false, error: "Database tidak tersedia di environment ini" },
+      { status: 503 }
     );
-
+  }
+  try {
     const rows = await db.registration.findMany({
       orderBy: { createdAt: "desc" },
-      take: limit,
+      take: 500,
     });
-
     return NextResponse.json({
       success: true,
       count: rows.length,
@@ -134,8 +158,8 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     console.error("[GET /api/registrations] error:", e);
     return NextResponse.json(
-      { error: "Terjadi kesalahan server" },
-      { status: 500 }
+      { success: false, error: "Database tidak tersedia" },
+      { status: 503 }
     );
   }
 }

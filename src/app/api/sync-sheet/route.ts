@@ -19,6 +19,12 @@ export async function POST() {
       { status: 400 }
     );
   }
+  if (!db) {
+    return NextResponse.json(
+      { error: "Database tidak tersedia di environment ini" },
+      { status: 503 }
+    );
+  }
 
   try {
     const rows = await db.registration.findMany({
